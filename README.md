@@ -3,7 +3,7 @@ This tool converts python source code or .py files to VS code snippets
 
 # Example 
 **From:**
-
+```
 from dataclasses import dataclass
 
 
@@ -21,9 +21,9 @@ class Person:
             return 0  # No years left to reach that age
         return target_age - self.age
         return target_age - self.age
-
+```
 **To:**
-
+```
 {
   "Person": {
     "prefix": "Person",
@@ -45,3 +45,4 @@ class Person:
     "description": "random example class"
   }
 }
+```
