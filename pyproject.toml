@@ -2,7 +2,8 @@
 name = "pythonsnip"
 version = "0.1.0"
 description = ""
-authors = ["azerv1 <asterioszer@gmail.com>"]
+authors = ["azerv1 <asterioszer@gtest3ddawmail.com>"]
+
 readme = "README.md"
 
 packages = [{include = "pythonsnip", from = "src"}]

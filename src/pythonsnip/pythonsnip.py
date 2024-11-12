@@ -30,16 +30,10 @@ class Snippet:
         self._snippet = _snippet
         return _snippet
 
-    def _to_str(self) -> str:
-        _json = json.dumps(self._snippet)
-        print(_json[1:-1])  # Print without surrounding braces
-        return _json
-
     def _json_to_code(self, data: dict) -> str:
-        # Iterate through each line in the body of the code (from the data dictionary)
+        """This should return the starting self.body code"""
         return "\n".join(
             [
-                # Strip the triple quotes from docstrings, remove unwanted commas and spaces
                 (
                     line.strip('""').rstrip(',"')
                     if not line.endswith('""",')
@@ -58,7 +52,7 @@ class CodeParser:
         if not code and Path(file).exists():
             with open(file) as f:
                 self.code = f.read()
-        else:
+        elif code:
             self.code = code
         self.node = ast.parse(self.code)
         self.snippets: list[dict] = []
