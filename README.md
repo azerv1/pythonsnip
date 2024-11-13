@@ -1,7 +1,18 @@
 ## What it Does ##
 This tool converts python source code or .py files to VS code snippets
 
-# Example 
+# Usage
+```
+from pythonsnip.pythonsnip import PythonSnip
+
+if __name__ == "__main__":
+
+    example_file = "examples/example.py"
+    with open(example_file, "r") as f:
+        source_code = f.read()
+    parser = PythonSnip(source_code)
+    parser.get_snippets().to_json_snippet(filename="examples/example.json")
+```
 **From:**
 ```
 from dataclasses import dataclass

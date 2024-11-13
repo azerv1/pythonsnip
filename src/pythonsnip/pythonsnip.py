@@ -9,7 +9,7 @@ class Snippet:
     name: str
     prefix: str
     body: str
-    description: str | None
+    description: str
 
     def _code_to_json(self) -> dict:
         _body = self.body.split("\n")
@@ -30,58 +30,40 @@ class Snippet:
         self._snippet = _snippet
         return _snippet
 
-    def _json_to_code(self, data: dict) -> str:
-        """This should return the starting self.body code"""
-        return "\n".join(
-            [
-                (
-                    line.strip('""').rstrip(',"')
-                    if not line.endswith('""",')
-                    else line[1:-2]
-                )
-                for line in data[self.name]["body"]
-            ]
-        )
 
-
-@dataclass
-class CodeParser:
+class PythonSnip:
     """Parse Python code to extract function and class definitions."""
 
-    def __init__(self, file: Path | None = None, code: str | None = None) -> None:
-        if not code and Path(file).exists():
-            with open(file) as f:
-                self.code = f.read()
-        elif code:
-            self.code = code
+    def __init__(self, code: str) -> None:
+        self.code = code
         self.node = ast.parse(self.code)
         self.snippets: list[dict] = []
 
-    def class_snippets(self):
-        defs = list(filter(lambda node: isinstance(node, ast.ClassDef), self.node.body))
-        for _def in defs:
-            source = ast.unparse(_def)
-            name = _def.name
-            docstring = ast.get_docstring(_def)
+    def get_snippets(self, functions: bool = True, classes: bool = True):
+        # We will gather all function and class definitions
+
+        definitions: list[ast.FunctionDef | ast.ClassDef] = []
+        if functions:
+            definitions.extend(
+                [node for node in self.node.body if isinstance(node, ast.FunctionDef)]
+            )
+
+        if classes:
+            definitions.extend(
+                [node for node in self.node.body if isinstance(node, ast.ClassDef)]
+            )
+
+        # Extract snippets from the collected definitions
+        for _def in definitions:
+            source = ast.unparse(_def)  # Get the source code of the function/class
+            name = _def.name  # Get the name of the function/class
+            docstring = ast.get_docstring(_def)  # Get the docstring
+
             self.snippets.append(
                 {"name": name, "prefix": name, "body": source, "description": docstring}
             )
-        return self.snippets
 
-    def function_snippets(self):
-        defs = list(
-            filter(lambda node: isinstance(node, ast.FunctionDef), self.node.body)
-        )
-
-        for _def in defs:
-            source = ast.unparse(_def)
-            name = _def.name
-            docstring = ast.get_docstring(_def)
-
-            self.snippets.append(
-                {"name": name, "prefix": name, "body": source, "description": docstring}
-            )
-            return self.snippets
+        return self
 
     def to_json_snippet(self, filename: Path, indent=2):
         if self.snippets:
@@ -96,4 +78,4 @@ class CodeParser:
 
                 json.dump(json_data, _json_file, indent=indent)
         else:
-            return False
+            raise ValueError
